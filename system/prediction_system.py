@@ -196,7 +196,7 @@ def plot_scaling_comparison(X_train, X_train_scaled, features):
     plt.suptitle('Feature Scaling: Before vs After StandardScaler\n(After scaling: Mean=0, Std=1)', 
                  fontsize=12, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\scaling_comparison.png', dpi=150)
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\scaling_comparison.png', dpi=150)
     plt.show()
     
     # Print summary table
@@ -233,7 +233,7 @@ def plot_both_confusion_matrices(y_test, lr_pred, rf_pred):
     axes[1].set_ylabel('Actual')
     
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\confusion_matrices.png', dpi=150, bbox_inches='tight')
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\confusion_matrices.png', dpi=150, bbox_inches='tight')
     plt.show()
 
 
@@ -255,7 +255,7 @@ def plot_feature_importance(rf_model, features):
     plt.ylabel('Features', fontsize=11)
     plt.title('Feature Importance (Random Forest)', fontsize=13, fontweight='bold')
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\feature_importance.png', dpi=150, bbox_inches='tight')
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\feature_importance.png', dpi=150, bbox_inches='tight')
     plt.show()
     
     print("TOP 5 MOST IMPORTANT FEATURES")
@@ -291,7 +291,7 @@ def plot_knn_accuracy(X_train_scaled, y_train, X_val_scaled, y_val):
     plt.legend(fontsize=10)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\knn_k_accuracy.png', dpi=150, bbox_inches='tight')
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\knn_k_accuracy.png', dpi=150, bbox_inches='tight')
     plt.show()
     
     return best_k, accuracy_list
@@ -325,7 +325,7 @@ def plot_model_comparison(lr_acc, rf_acc, lr_val_acc, rf_val_acc):
                     xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', fontsize=9)
     
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\model_comparison.png', dpi=150, bbox_inches='tight')
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\model_comparison.png', dpi=150, bbox_inches='tight')
     plt.show()
 
 
@@ -377,7 +377,7 @@ def plot_roc_curves(lr_model, rf_model, X_test_scaled, y_test):
     plt.fill_between(rf_fpr, rf_tpr, alpha=0.1, color='coral')
     
     plt.tight_layout()
-    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\data\roc_curves.png', dpi=150, bbox_inches='tight')
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\roc_curves.png', dpi=150, bbox_inches='tight')
     plt.show()
     
     # Print detailed analysis
