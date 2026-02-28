@@ -28,6 +28,33 @@ def load_dataset(filepath):
     print(f"Dataset loaded: {df.shape[0]} students, {df.shape[1]} features")
     print(f"\nColumns in dataset: {list(df.columns)}")
     
+    # Check for missing values
+    missing_before = df.isnull().sum().sum()
+    if missing_before > 0:
+        print(f"\nMissing values detected: {missing_before}")
+        print("Missing values per column:")
+        for col in df.columns:
+            missing_count = df[col].isnull().sum()
+            if missing_count > 0:
+                print(f"  {col}: {missing_count}")
+        
+        # Handle missing values - fill with 0 for all columns except Risk
+        for col in df.columns:
+            if col != 'Risk' and df[col].isnull().sum() > 0:
+                # Convert to numeric first if needed
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+                # Fill NaN with 0
+                df[col] = df[col].fillna(0)
+        
+        print(f"✓ Missing values filled with 0. Rows after cleaning: {df.shape[0]}")
+        
+        # Verify no NaN values remain
+        remaining_nan = df.isnull().sum().sum()
+        if remaining_nan > 0:
+            print(f"WARNING: {remaining_nan} NaN values still remain!")
+        else:
+            print("✓ All missing values successfully handled")
+    
     # Automatically detect features (all columns except 'Risk')
     features = [col for col in df.columns if col != 'Risk']
     print(f"\nDetected {len(features)} features for prediction")
@@ -146,6 +173,100 @@ def plot_confusion_matrix(y_test, y_pred):
     print(f"  True Positives (Correct At Risk):      {cm[1][1]}")
 
 
+def plot_feature_importance(lr_model, features):
+    """Plot feature importance based on Logistic Regression coefficients"""
+    print("\n" + "=" * 80)
+    print("FEATURE IMPORTANCE ANALYSIS")
+    print("=" * 80)
+    
+    # Get absolute coefficients as feature importance
+    coefficients = np.abs(lr_model.coef_[0])
+    
+    # Create dataframe
+    importance_df = pd.DataFrame({
+        'Feature': features,
+        'Importance': coefficients
+    }).sort_values('Importance', ascending=True)
+    
+    # Create plot
+    plt.figure(figsize=(10, 6))
+    colors = plt.cm.viridis(np.linspace(0.3, 0.9, len(features)))
+    
+    plt.barh(importance_df['Feature'], importance_df['Importance'], color=colors, edgecolor='black', linewidth=1.2)
+    plt.xlabel('Absolute Coefficient Value (Importance)', fontsize=12, fontweight='bold', color='#2d3436')
+    plt.ylabel('Features', fontsize=12, fontweight='bold', color='#2d3436')
+    plt.title('Feature Importance - Logistic Regression\n(Based on Absolute Coefficient Values)', 
+              fontsize=14, fontweight='bold', color='#2d3436')
+    plt.grid(axis='x', alpha=0.3, linestyle='--')
+    plt.tight_layout()
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\feature_importance.png', dpi=150, bbox_inches='tight')
+    plt.show()
+    
+    # Print top features
+    print("\nFeature Importance Ranking (Most to Least Important):")
+    for idx, (_, row) in enumerate(importance_df.iloc[::-1].iterrows(), 1):
+        print(f"  {idx}. {row['Feature']:<50} Importance: {row['Importance']:.4f}")
+    
+    return importance_df
+
+
+def plot_model_comparison(train_acc, val_acc, test_acc, train_prec, test_prec, train_rec, test_rec):
+    """Plot comparison of model performance across different datasets"""
+    print("\n" + "=" * 80)
+    print("MODEL PERFORMANCE COMPARISON")
+    print("=" * 80)
+    
+    # Prepare data
+    metrics = ['Accuracy', 'Precision', 'Recall']
+    train_scores = [train_acc * 100, train_prec * 100, train_rec * 100]
+    val_scores = [val_acc * 100, 0, 0]  # Only accuracy for validation
+    test_scores = [test_acc * 100, test_prec * 100, test_rec * 100]
+    
+    x = np.arange(len(metrics))
+    width = 0.25
+    
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    bars1 = ax.bar(x - width, train_scores, width, label='Training', color='#74b9ff', edgecolor='black', linewidth=1.2)
+    bars2 = ax.bar(x, val_scores[:1] + [0, 0], width, label='Validation', color='#a29bfe', edgecolor='black', linewidth=1.2)
+    bars3 = ax.bar(x + width, test_scores, width, label='Test', color='#fd79a8', edgecolor='black', linewidth=1.2)
+    
+    ax.set_xlabel('Metrics', fontsize=12, fontweight='bold', color='#2d3436')
+    ax.set_ylabel('Score (%)', fontsize=12, fontweight='bold', color='#2d3436')
+    ax.set_title('Logistic Regression - Performance Across Datasets', fontsize=14, fontweight='bold', color='#2d3436')
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics, fontsize=11)
+    ax.legend(fontsize=10, framealpha=0.9, shadow=True)
+    ax.set_ylim(0, 105)
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # Add value labels on bars
+    for bars in [bars1, bars3]:
+        for bar in bars:
+            height = bar.get_height()
+            if height > 0:
+                ax.text(bar.get_x() + bar.get_width()/2., height,
+                       f'{height:.1f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    # Add validation accuracy label
+    if val_scores[0] > 0:
+        ax.text(bars2[0].get_x() + bars2[0].get_width()/2., val_scores[0],
+               f'{val_scores[0]:.1f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.savefig(r'C:\Users\Dell\Desktop\ai assignment\images\model_comparison.png', dpi=150, bbox_inches='tight')
+    plt.show()
+    
+    print("\nComparison Summary:")
+    print(f"  Training Accuracy:   {train_acc*100:.2f}%")
+    print(f"  Validation Accuracy: {val_acc*100:.2f}%")
+    print(f"  Test Accuracy:       {test_acc*100:.2f}%")
+    print(f"  Training Precision:  {train_prec*100:.2f}%")
+    print(f"  Test Precision:      {test_prec*100:.2f}%")
+    print(f"  Training Recall:     {train_rec*100:.2f}%")
+    print(f"  Test Recall:         {test_rec*100:.2f}%")
+
+
 def plot_roc_curve(lr_model, X_test_scaled, y_test):
     """Plot ROC curve for Logistic Regression"""
     print("\n" + "=" * 80)
@@ -227,6 +348,18 @@ def main():
     X = df[FEATURES].copy()
     y = df['Risk'].copy()
     
+    # Double-check for NaN values
+    if X.isnull().sum().sum() > 0:
+        print("\nWARNING: NaN values detected in features after loading!")
+        print("Filling remaining NaN values with 0...")
+        X = X.fillna(0)
+    
+    if y.isnull().sum() > 0:
+        print("\nWARNING: NaN values detected in target variable!")
+        df = df.dropna(subset=['Risk'])
+        X = df[FEATURES].copy()
+        y = df['Risk'].copy()
+    
     # Display class distribution
     print(f"\nTarget Distribution:")
     print(f"  Not At Risk (0): {(y == 0).sum()} students ({(y == 0).mean()*100:.1f}%)")
@@ -250,26 +383,58 @@ def main():
         X_train_scaled, y_train, X_val_scaled, y_val, X_test_scaled, y_test
     )
     
+    # Calculate additional metrics for train set
+    y_train_pred = lr_model.predict(X_train_scaled)
+    train_accuracy = accuracy_score(y_train, y_train_pred)
+    train_precision = precision_score(y_train, y_train_pred)
+    train_recall = recall_score(y_train, y_train_pred)
+    
+    # Calculate metrics for test set
+    test_accuracy = accuracy_score(y_test, y_test_pred)
+    test_precision = precision_score(y_test, y_test_pred)
+    test_recall = recall_score(y_test, y_test_pred)
+    
+    # Calculate validation accuracy
+    y_val_pred = lr_model.predict(X_val_scaled)
+    val_accuracy = accuracy_score(y_val, y_val_pred)
+    
     # Plot Confusion Matrix
     print("\n" + "-" * 80)
     print("CONFUSION MATRIX")
     print("-" * 80)
     plot_confusion_matrix(y_test, y_test_pred)
     
+    # Plot Feature Importance
+    importance_df = plot_feature_importance(lr_model, FEATURES)
+    
+    # Plot Model Comparison
+    plot_model_comparison(train_accuracy, val_accuracy, test_accuracy, 
+                         train_precision, test_precision, train_recall, test_recall)
+    
     # Plot ROC Curve
     roc_auc = plot_roc_curve(lr_model, X_test_scaled, y_test)
     
     # Final Summary
-    print("\n" + "=" * 80)
     print("TRAINING COMPLETE - SUMMARY")
-    print("=" * 80)
     print(f"Model: Logistic Regression")
     print(f"Features: {len(FEATURES)}")
-    print(f"Training samples: {len(X_train)}")
-    print(f"Test accuracy: {accuracy_score(y_test, y_test_pred)*100:.2f}%")
-    print(f"AUC Score: {roc_auc:.3f}")
+    print(f"Feature List: {', '.join(FEATURES)}")
+    print(f"\nDataset Split:")
+    print(f"  Training samples:   {len(X_train)}")
+    print(f"  Validation samples: {len(X_val)}")
+    print(f"  Testing samples:    {len(X_test)}")
+    print(f"\nModel Performance:")
+    print(f"  Training Accuracy:   {train_accuracy*100:.2f}%")
+    print(f"  Validation Accuracy: {val_accuracy*100:.2f}%")
+    print(f"  Test Accuracy:       {test_accuracy*100:.2f}%")
+    print(f"  Test Precision:      {test_precision*100:.2f}%")
+    print(f"  Test Recall:         {test_recall*100:.2f}%")
+    print(f"  AUC Score:           {roc_auc:.3f}")
     print(f"\nVisualizations saved to: C:\\Users\\Dell\\Desktop\\ai assignment\\images\\")
-    print("=" * 80 + "\n")
+    print("  - confusion_matrix.png")
+    print("  - feature_importance.png")
+    print("  - model_comparison.png")
+    print("  - roc_curve.png")
     
     return df, lr_model, scaler, FEATURES
 

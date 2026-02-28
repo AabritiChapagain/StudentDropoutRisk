@@ -223,13 +223,13 @@ def page_risk_prediction():
     st.markdown('<p class="sub-header">AI-Powered Risk Analysis using Logistic Regression</p>', unsafe_allow_html=True)
     
     # Info about the model
-    st.markdown("""
+    st.markdown(f"""
     <div class="info-card" style="color: #000000;">
     <strong>🤖 Logistic Regression Model:</strong> This system uses a highly accurate Logistic Regression classifier 
-    with <strong>{}</strong> features to predict academic risk. The model achieved <strong>100% accuracy</strong> 
-    on test data with perfect precision, recall, and F1-score.
+    with <strong>{len(FEATURES)}</strong> features to predict academic risk. The model achieved <strong>{models['lr_test_acc']*100:.1f}% accuracy</strong> 
+    on test data with <strong>{models['lr_precision']*100:.1f}% precision</strong> and <strong>{models['lr_f1']*100:.1f}% F1-score</strong>.
     </div>
-    """.format(len(FEATURES)), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     st.markdown("### 📝 Input Student Information")
     
@@ -423,7 +423,7 @@ def page_risk_prediction():
             """, unsafe_allow_html=True)
         else:
             st.markdown("""
-            <div class="info-card">
+            <div class="info-card" style="color: #000000;">
             <h4>✅ Low Risk - Keep Up the Good Work!</h4>
             <p>The student is performing well academically. To maintain this positive trajectory:</p>
             <ul>
@@ -690,11 +690,13 @@ def page_system_info():
     # Overview
     st.markdown("### 🎯 System Overview")
     st.markdown("""
-    This Academic Risk Prediction System uses **Logistic Regression**, a powerful machine learning algorithm, 
+    <div style="color: #000000;">
+    This Academic Risk Prediction System uses <strong>Logistic Regression</strong>, a powerful machine learning algorithm, 
     to identify students who may be at risk of academic failure. The system analyzes multiple factors including 
     academic performance, enrollment patterns, and demographic information to provide accurate predictions and 
     actionable recommendations.
-    """)
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     
@@ -704,7 +706,7 @@ def page_system_info():
     with col1:
         st.markdown("### 🤖 Logistic Regression Model")
         st.markdown("""
-        <div class="info-card">
+        <div class="info-card" style="color: #000000;">
         <h4>📉 Why Logistic Regression?</h4>
         <p>Logistic Regression is a statistical model that predicts the probability of a binary outcome 
         (Safe vs At Risk). It's particularly effective for this application because:</p>
@@ -719,7 +721,7 @@ def page_system_info():
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-card">
+        <div class="info-card" style="color: #000000;">
         <h4>⚙️ Model Configuration</h4>
         <ul>
             <li><strong>Algorithm:</strong> Logistic Regression with L1/L2 regularization</li>
@@ -794,7 +796,7 @@ def page_system_info():
     with col2:
         st.markdown("### 📋 Data Split")
         st.markdown("""
-        <div class="info-card">
+        <div class="info-card" style="color: #000000;">
         <ul>
             <li><strong>Training Set:</strong> 60% (Model learning)</li>
             <li><strong>Validation Set:</strong> 20% (Hyperparameter tuning)</li>
@@ -821,7 +823,7 @@ def page_system_info():
     # Target definition
     st.markdown("### 🎯 Risk Definition")
     st.markdown("""
-    <div class="warning-card">
+    <div class="warning-card" style="color: #000000;">
     <h4>What does "At Risk" mean?</h4>
     <p>A student is classified as <strong>"At Risk"</strong> (Risk = 1) based on their academic 
     performance indicators and enrollment patterns. The system analyzes historical data to identify 
@@ -838,25 +840,31 @@ def page_system_info():
     
     with col1:
         st.markdown("""
-        **Frontend**
-        - Streamlit
+        <div style="color: #000000;">
+        <strong>Frontend</strong><br>
+        - Streamlit<br>
         - Plotly
-        """)
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        **ML Libraries**
-        - scikit-learn
-        - pandas
+        <div style="color: #000000;">
+        <strong>ML Libraries</strong><br>
+        - scikit-learn<br>
+        - pandas<br>
         - numpy
-        """)
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        **Visualization**
-        - Plotly Express
+        <div style="color: #000000;">
+        <strong>Visualization</strong><br>
+        - Plotly Express<br>
         - Plotly Graph Objects
-        """)
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # Page router
@@ -869,10 +877,10 @@ elif page == "ℹ️ About System":
 
 # Footer
 st.markdown("---")
-st.markdown("""
+st.markdown(f"""
 <div style='text-align: center; color: #64748b; padding: 2rem 0;'>
     <p><strong>🎓 Student Academic Risk Prediction System</strong></p>
     <p>Powered by Logistic Regression ML Model | Built with Streamlit & Python</p>
-    <p style='font-size: 0.85rem;'>Achieving 100% Accuracy in Risk Detection</p>
+    <p style='font-size: 0.85rem;'>Achieving {models['lr_test_acc']*100:.1f}% Accuracy with {models['lr_f1']*100:.1f}% F1-Score</p>
 </div>
 """, unsafe_allow_html=True)
